@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BluetoothSwitch</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_world">Hello world!</string>
+    
+    <!-- 全局 -->
+    <string name="pub_ok">确定</string>
+    <string name="pub_cancle">取消</string>
+    
+    <!--dialog  -->
+    <string name="dialog_modify_control_name">修改控制名称</string>
+    <string name="dialog_control_name_hint">请输入控制名称</string>
+
+</resources>
