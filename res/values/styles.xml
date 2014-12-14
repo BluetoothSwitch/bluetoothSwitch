@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -85,6 +85,11 @@
     <style name="topbar_right_btn" parent="@style/topbar_btn">
         <item name="android:layout_marginRight">10.0dip</item>
         <item name="android:layout_alignParentRight">true</item>
+    </style>
+    
+    <style name="style_adapter_device">
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">15sp</item>
     </style>
         <!-- 自定义对话框样式 -->
     <style name="MyDialog" parent="@android:Theme.Dialog">
