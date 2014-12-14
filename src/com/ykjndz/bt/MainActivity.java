@@ -1,11 +1,24 @@
 package com.ykjndz.bt;
 
+import java.util.ArrayList;
+
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import com.ykjndz.bt.adapter.DeviceListAdapter;
 /**
  * 主界面
 * @Description: 
@@ -14,15 +27,25 @@ import android.widget.TextView;
 *
  */
 public class MainActivity extends BaseActivity {
-    private TextView tvBluetoothName;
-    private Button btnCntDev,btnStopDev;
-    private ImageButton ibControl;
-    private TextView tvMydata;
+    private Button btnScan;
+    private ListView listView;
+    
+    BluetoothAdapter mBluetoothAdapter;
+    int REQUEST_ENABLE_BT=1;
+    
+    private boolean mScanning;
+    private Handler mHandler;
+
+    // Stops scanning after 10 seconds.
+    private static final long SCAN_PERIOD = 10000;
+    
+    private DeviceListAdapter deviceListAdapter;
+    private ArrayList<Integer> rssis;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		initComponent();
+		init();
 		registerListener();
 	}
     /**
@@ -31,12 +54,32 @@ public class MainActivity extends BaseActivity {
     * @param      
     * @return void
      */
-	private void initComponent(){
-		tvBluetoothName = (TextView) findViewById(R.id.bluetooth_name_text);
-		btnCntDev = (Button) findViewById(R.id.btn_cnt_dev);
-		btnStopDev = (Button) findViewById(R.id.btn_stop_dev);
-		ibControl = (ImageButton) findViewById(R.id.ib_control);
-		tvMydata = (TextView) findViewById(R.id.mydata);
+	private void init(){
+		btnScan = (Button) findViewById(R.id.main_scan_dev);
+		listView = (ListView) findViewById(R.id.main_listview);
+		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+		    Toast.makeText(this, "不支持BLE", Toast.LENGTH_SHORT).show();
+		    finish();
+		}
+		
+		// Initializes Bluetooth adapter.
+		final BluetoothManager bluetoothManager =
+		        (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+		mBluetoothAdapter = bluetoothManager.getAdapter();
+		
+		// Ensures Bluetooth is available on the device and it is enabled. If not,
+		// displays a dialog requesting user permission to enable Bluetooth.
+		if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+		    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+		}
+		
+		mHandler=new Handler();
+		rssis =new ArrayList<Integer>();
+		deviceListAdapter=new DeviceListAdapter(MainActivity.this,rssis);
+		
+		listView.setAdapter(deviceListAdapter);
+		
 	}
 	
 	/**
@@ -46,35 +89,77 @@ public class MainActivity extends BaseActivity {
 	* @return void
 	 */
 	private void registerListener() {
-		//连接设备
-		btnCntDev.setOnClickListener(new OnClickListener() {
+		btnScan.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		// 断开设备
-		btnStopDev.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				
+				scanLeDevice(true);
 			}
 		});
 		
-		//控制操作
-		ibControl.setOnClickListener(new OnClickListener() {
-			
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
 			@Override
-			public void onClick(View v) {
-				
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				final BluetoothDevice device = deviceListAdapter.getDevice(position);
+		        if (device == null) return;
+		        final Intent intent = new Intent(MainActivity.this, DeviceControlActivity.class);
+		        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+		        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+		        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_RSSI, rssis.get(position).toString());
+		        if (mScanning) {
+		            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+		            mScanning = false;
+		        }
+		        startActivity(intent);
 				
 			}
 		});
-		
 	}
+	
+	/**
+	 * 扫描设备
+	* @Description: 
+	* @param @param enable     
+	* @return void
+	 */
+	private void scanLeDevice(final boolean enable) {
+        if (enable) {
+            // Stops scanning after a pre-defined scan period.
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScanning = false;
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                }
+            }, SCAN_PERIOD);
+
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+        } else {
+            mScanning = false;
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
+    
+    }
+	
+	private BluetoothAdapter.LeScanCallback mLeScanCallback =
+	        new BluetoothAdapter.LeScanCallback() {
+	    
+
+		@Override
+		public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+			// TODO Auto-generated method stub
+				
+			runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                	deviceListAdapter.addDevice(device,rssi);
+                	deviceListAdapter.notifyDataSetChanged();
+                }
+            });
+		}
+	};
 
 }
