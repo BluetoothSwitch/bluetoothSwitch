@@ -22,6 +22,12 @@
             android:id="@+id/control_blueth_name"
             style="@style/topbar_text"
             android:text="HMSoft" />
+        <TextView
+            android:id="@+id/control_blueth_status"
+            style="@style/topbar_name_text"
+            android:textColor="@android:color/holo_red_light"
+            android:layout_marginRight="10dp"
+            android:text="Disconnected" />
     </RelativeLayout>
 
     <RelativeLayout

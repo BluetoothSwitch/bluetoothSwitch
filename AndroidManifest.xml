@@ -31,6 +31,7 @@
          <activity
             android:name="com.ykjndz.bt.DeviceControlActivity">
         </activity>
+        <service android:name="BluetoothLeService" android:enabled="true"></service>
     </application>
 
 </manifest>
