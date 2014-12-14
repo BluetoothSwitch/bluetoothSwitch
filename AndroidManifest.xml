@@ -33,5 +33,5 @@
         </activity>
         <service android:name="BluetoothLeService" android:enabled="true"></service>
     </application>
-
+	
 </manifest>
