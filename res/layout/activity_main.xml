@@ -1,16 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/loginbg"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
+    <RelativeLayout
+        android:id="@+id/main_topbar"
+        style="@style/topbar_bg"
+        android:layout_width="match_parent"
+        android:layout_height="46.0dip" >
+        <TextView
+            style="@style/topbar_text"
+            android:text="蓝牙开关插座" />
+
+        <TextView
+            android:id="@+id/bluetooth_name_text"
+            style="@style/topbar_name_text"
+            android:layout_marginRight="10dp"
+            android:text="Yikong" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/main_center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/main_topbar"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/btn_cnt_dev"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="连接设备" />
+
+                <Button
+                    android:id="@+id/btn_stop_dev"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="断开设备" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="50dp"
+                android:layout_gravity="center" >
+
+                <ImageButton
+                    android:id="@+id/ib_control"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:background="@drawable/btn_control_selector" />
+
+                <TextView
+                    android:id="@+id/main_tv1"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/ib_control"
+                    android:layout_below="@+id/ib_control"
+                    android:gravity="center_horizontal"
+                    android:text="控制1"
+                    android:textColor="@drawable/color_control"
+                    android:textSize="20sp" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/mydata"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
