@@ -17,7 +17,6 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import com.ykjndz.bt.adapter.DeviceListAdapter;
 /**
  * 主界面
@@ -41,6 +40,7 @@ public class MainActivity extends BaseActivity {
     
     private DeviceListAdapter deviceListAdapter;
     private ArrayList<Integer> rssis;
+    
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
