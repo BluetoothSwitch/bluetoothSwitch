@@ -1,10 +1,11 @@
 package com.ykjndz.bt;
 
 import java.util.List;
-import com.ykjndz.bt.tool.Utils;
-import com.ykjndz.bt.BluetoothLeClass;
-import com.ykjndz.bt.BluetoothLeService;
 
+import com.ykjndz.bt.tool.Constants;
+import com.ykjndz.bt.tool.Utils;
+import com.ykjndz.bt.BluetoothLeService;
+import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
@@ -46,14 +47,12 @@ public class DeviceControlActivity extends BaseActivity {
 
 	private boolean mConnected = false;
 	private static BluetoothGattCharacteristic target_chara=null;
-	private BluetoothLeClass mBLE = null;
 	private Handler mHandler;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_device_control);
-		mBLE = new BluetoothLeClass(this);
 		mHandler = new Handler();
 		init();
 		registerListener();
@@ -196,7 +195,7 @@ public class DeviceControlActivity extends BaseActivity {
 		ibtControlLight.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				write("AT+PIOB1");
+				write(Constants.SWITCH_OPEN);
 			}
 		});
 		
@@ -204,7 +203,7 @@ public class DeviceControlActivity extends BaseActivity {
 			
 			@Override
 			public boolean onLongClick(View v) {
-				write("AT+PIOB0");
+				write(Constants.SWITCH_CLOSE);
 				return true;
 			}
 		});
@@ -214,7 +213,7 @@ public class DeviceControlActivity extends BaseActivity {
 
 			@Override
 			public void onClick(View v) {
-				write("AT+PIOA1");
+				write(Constants.LIGHT_OPEN);
 			}
 		});
 		
@@ -222,7 +221,7 @@ public class DeviceControlActivity extends BaseActivity {
 			
 			@Override
 			public boolean onLongClick(View v) {
-				write("AT+PIOA0");
+				write(Constants.LIGHT_CLOSE);
 				return true;
 			}
 		});
@@ -232,7 +231,7 @@ public class DeviceControlActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
-				write("AT+PIO91");
+				write(Constants.ALARM_OPEN);
 			}
 		});
 		
@@ -240,7 +239,7 @@ public class DeviceControlActivity extends BaseActivity {
 			
 			@Override
 			public boolean onLongClick(View v) {
-				write("AT+PIO90");
+				write(Constants.ALARM_CLOSE);
 				return true;
 			}
 		});
@@ -301,8 +300,47 @@ public class DeviceControlActivity extends BaseActivity {
 			target_chara.setValue(s);
 			mBluetoothLeService.writeCharacteristic(target_chara);
 		}
-	
     }
+	
+	private static BluetoothLeService.OnDataAvailableListener mOnDataAvailable = new BluetoothLeService.OnDataAvailableListener(){
+
+		@Override
+		public void onCharacteristicRead(BluetoothGatt gatt,
+				BluetoothGattCharacteristic characteristic, int status) {
+			if (status == BluetoothGatt.GATT_SUCCESS) {
+            	Log.e(TAG,"onCharacteristicRead "+gatt.getDevice().getName()
+						+" read "
+						+characteristic.getUuid().toString()
+						+" -> "
+						+Utils.bytesToHexString(characteristic.getValue()));
+            	mBluetoothLeService.broadcastUpdate(BluetoothLeService.ACTION_DATA_AVAILABLE, characteristic);
+            }
+		}
+
+		@Override
+		public void onCharacteristicWrite(BluetoothGatt gatt,
+				BluetoothGattCharacteristic characteristic) {
+                	mBluetoothLeService.broadcastUpdate(BluetoothLeService.ACTION_DATA_AVAILABLE, characteristic);
+                	Log.e(TAG,"onCharacteristicWrite "+gatt.getDevice().getName()
+        					+" write "
+        					+characteristic.getUuid().toString()
+        					+" -> "
+        					+new String(characteristic.getValue()));
+			
+		}
+
+		@Override
+		public void onCharacteristicChanged(BluetoothGatt gatt,
+				BluetoothGattCharacteristic characteristic) {
+			Log.e(TAG,"onCharacteristicChanged "+gatt.getDevice().getName()
+					+" write "
+					+characteristic.getUuid().toString()
+					+" -> "
+					+new String(characteristic.getValue()));
+			
+		}
+		
+    };
 	
 	/**
 	 * 
@@ -313,7 +351,7 @@ public class DeviceControlActivity extends BaseActivity {
 	 */
     public static void read()
     {
-    	//mBluetoothLeService.setOnDataAvailableListener(mOnDataAvailable);
+    	mBluetoothLeService.setOnDataAvailableListener(mOnDataAvailable);
     	mBluetoothLeService.readCharacteristic(target_chara);
     }
 
