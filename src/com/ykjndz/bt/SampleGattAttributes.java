@@ -29,7 +29,7 @@ public class SampleGattAttributes {
 
     static {
         // Sample Services.
-    	attributes.put("0000fff0-0000-1000-8000-00805f9b34fb", "�����Զ���ͨ��Э�����������");
+    	attributes.put("0000fff0-0000-1000-8000-00805f9b34fb", "基于自定义通信协议的蓝牙服务");
     	attributes.put("00001800-0000-1000-8000-00805f9b34fb", "Generic Access Profile Service");
     	attributes.put("00001801-0000-1000-8000-00805f9b34fb", "Generic Attribute Profile Service");
     	
@@ -38,11 +38,11 @@ public class SampleGattAttributes {
         // Sample Characteristics.
         attributes.put(HEART_RATE_MEASUREMENT, "Heart Rate Measurement");
         attributes.put("00002a29-0000-1000-8000-00805f9b34fb", "Manufacturer Name String");
-        attributes.put("0000fff1-0000-1000-8000-00805f9b34fb", "��һ����ֵ");
-        attributes.put("0000fff2-0000-1000-8000-00805f9b34fb", "�ڶ�����ֵ");
-        attributes.put("0000fff3-0000-1000-8000-00805f9b34fb", "��������ֵ");
-        attributes.put("0000fff4-0000-1000-8000-00805f9b34fb", "��������ֵ");
-        attributes.put("0000fff5-0000-1000-8000-00805f9b34fb", "��������ֵ");
+        attributes.put("0000fff1-0000-1000-8000-00805f9b34fb", "第一特征值");
+        attributes.put("0000fff2-0000-1000-8000-00805f9b34fb", "第二特征值");
+        attributes.put("0000fff3-0000-1000-8000-00805f9b34fb", "第三特征值");
+        attributes.put("0000fff4-0000-1000-8000-00805f9b34fb", "第四特征值");
+        attributes.put("0000fff5-0000-1000-8000-00805f9b34fb", "第五特征值");
     }
 
     public static String lookup(String uuid, String defaultName) {

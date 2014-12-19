@@ -40,7 +40,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class BluetoothLeService extends Service {
-    private final static String TAG = "BluetoothLeService";//luetoothLeService.class.getSimpleName();
+    private final static String TAG = BluetoothLeService.class.getSimpleName();
     private List<Sensor> mEnabledSensors = new ArrayList<Sensor>();
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -131,7 +131,6 @@ public class BluetoothLeService extends Service {
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
-        	System.out.println("++++++++++++++++");
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
 //        	if (mOnDataAvailableListener!=null)
 //        		mOnDataAvailableListener.onCharacteristicWrite(gatt, characteristic);

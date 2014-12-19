@@ -112,6 +112,7 @@ public class MainActivity extends BaseActivity {
 		            mBluetoothAdapter.stopLeScan(mLeScanCallback);
 		            mScanning = false;
 		        }
+		        
 		        startActivity(intent);
 				
 			}
