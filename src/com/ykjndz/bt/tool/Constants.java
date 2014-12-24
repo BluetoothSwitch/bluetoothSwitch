@@ -1,7 +1,6 @@
 package com.ykjndz.bt.tool;
 
 import android.R.integer;
-import android.R.string;
 
 /**
  * 常量类
@@ -36,10 +35,6 @@ public class Constants {
 	 */
 	public static String ALARM_CLOSE = "AT+PIO90";
 	
-	/**
-	 * 查询状态
-	 */
-	public  String SEARCH = "AT+PIO[&]?";
 	/**
 	 * 开关状态:开
 	 */
@@ -77,4 +72,19 @@ public class Constants {
 	 * 警报
 	 */
 	public static String ALARM = "AT+PI081";
+	/**
+	 * 查询状态指令
+	 * B:开关灯
+	 * A:小夜灯
+	 * 9:警报
+	 */
+	public static String[] PORT_ARRAY = new String[]{"AT+PIO[B]?","AT+PIO[A]?","AT+PIO[9]?"};
+	/**
+	 * 连接
+	 */
+	public static String CONNECTED = "Connected";
+	/**
+	 * 断开:未连接
+	 */
+	public static String DISCONNECTED = "Disconnected";
 }

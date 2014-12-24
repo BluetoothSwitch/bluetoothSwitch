@@ -6,7 +6,8 @@ import com.ykjndz.bt.tool.Constants;
 import com.ykjndz.bt.tool.Utils;
 import com.ykjndz.bt.BluetoothLeService;
 
-import android.R.string;
+import android.R.integer;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
@@ -28,6 +29,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+@SuppressLint("ResourceAsColor")
 public class DeviceControlActivity extends BaseActivity {
 
 	private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -104,8 +106,7 @@ public class DeviceControlActivity extends BaseActivity {
 		@Override
 		public void onServiceConnected(ComponentName componentName,
 				IBinder service) {
-			mBluetoothLeService = ((BluetoothLeService.LocalBinder) service)
-					.getService();
+			mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
 			if (!mBluetoothLeService.initialize()) {
 				Log.e(TAG, "Unable to initialize Bluetooth");
 				finish();
@@ -134,13 +135,13 @@ public class DeviceControlActivity extends BaseActivity {
 			final String action = intent.getAction();
 			if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
 				mConnected = true;
-				updateConnectionState(tvStatus,"Connected");
+				updateState(tvStatus,Constants.CONNECTED);
 			} else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
 				mConnected = false;
-				updateConnectionState(tvStatus,"Disconnected");
+				updateState(tvStatus,Constants.DISCONNECTED);
 			}else if(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)){
-			 // Show all the supported services and characteristics on the user interface.
-				displayGattServices(mBluetoothLeService.getSupportedGattServices());
+				GetGattServices(mBluetoothLeService.getSupportedGattServices());
+				searchState(0, true);
 			 }else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)){//接收数据
 				 String value = intent.getExtras().getString(BluetoothLeService.EXTRA_DATA);
 				 checkData(value);
@@ -149,18 +150,41 @@ public class DeviceControlActivity extends BaseActivity {
 	};
 	
 	private void checkData(String data){
-		if(Constants.RES_ALARM_CLOSE.equals(data)){
-			updateConnectionState(alarmtxt,alarmstr + ":" + data + "-->关");
-		}else if(Constants.RES_ALARM_OPEN.equals(data)){
-			updateConnectionState(alarmtxt,alarmstr + ":" + data + "-->开");
-		}else if(Constants.RES_LIGHT_CLOSE.equals(data)){
-			updateConnectionState(lighttxt,lightstr + ":" + data + "-->关");
-		}else if(Constants.RES_LIGHT_OPEN.equals(data)){
-			updateConnectionState(lighttxt,lightstr + ":" + data + "-->开");
-		}else if(Constants.RES_SWITCH_CLOSE.equals(data)){
-			updateConnectionState(switchtxt,swidthstr + ":" + data + "-->关");
-		}else if(Constants.RES_SWITCH_OPEN.equals(data)){
-			updateConnectionState(switchtxt,swidthstr + ":" + data + "-->开");
+		Log.d(TAG,data + "====");
+		//点击返回
+		if(Constants.RES_ALARM_CLOSE.equals(data) || Constants.ALARM_CLOSE.equals(data)){
+			updateState(alarmtxt,alarmstr + ":" + data + "-->关");
+		}else if(Constants.RES_ALARM_OPEN.equals(data) || Constants.ALARM_OPEN.equals(data)){
+			updateState(alarmtxt,alarmstr + ":" + data + "-->开");
+		}else if(Constants.RES_LIGHT_CLOSE.equals(data) || Constants.LIGHT_CLOSE.equals(data)){
+			updateState(lighttxt,lightstr + ":" + data + "-->关");
+		}else if(Constants.RES_LIGHT_OPEN.equals(data) || Constants.LIGHT_OPEN.equals(data)){
+			updateState(lighttxt,lightstr + ":" + data + "-->开");
+		}else if(Constants.RES_SWITCH_CLOSE.equals(data) || Constants.SWITCH_CLOSE.equals(data)){
+			updateState(switchtxt,swidthstr + ":" + data + "-->关");
+		}else if(Constants.RES_SWITCH_OPEN.equals(data) || Constants.SWITCH_OPEN.equals(data)){
+			updateState(switchtxt,swidthstr + ":" + data + "-->开");
+		}
+		
+	}
+	
+	/**
+	 * @Description:查询灯的状态
+	 * @author: huangwb 
+	 * @date: 2014年12月24日 上午11:29:32
+	 * @throws:
+	 */
+	private void searchState(int type,boolean isInit){
+		int i = 0;
+		String str = null;
+		if(isInit){
+			for(i = 0;i < Constants.PORT_ARRAY.length;i++){
+				str = Constants.PORT_ARRAY[i];
+				write(str);
+			}
+		}else{
+			str = Constants.PORT_ARRAY[type];
+			write(str);
 		}
 	}
 	/**
@@ -171,13 +195,13 @@ public class DeviceControlActivity extends BaseActivity {
 	 * @date: 2014年12月15日 下午9:04:25
 	 * @throws:
 	 */
-    private void displayGattServices(List<BluetoothGattService> gattServices) {
+    private void GetGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
 
         for (BluetoothGattService gattService : gattServices) {
         	//-----Service的字段信息-----//
         	int type = gattService.getType();
-            
+        	Log.d(TAG,"---->type:" + type);
             //-----Characteristics的字段信息-----//
             List<BluetoothGattCharacteristic> gattCharacteristics =gattService.getCharacteristics();
             for (final BluetoothGattCharacteristic  gattCharacteristic: gattCharacteristics) {
@@ -213,7 +237,7 @@ public class DeviceControlActivity extends BaseActivity {
         }//
     }
 
-	private void updateConnectionState(final TextView view,final String status) {
+	private void updateState(final TextView view,final String status) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -319,7 +343,9 @@ public class DeviceControlActivity extends BaseActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		unregisterReceiver(mGattUpdateReceiver);
+		unbindService(mServiceConnection);
 		mBluetoothLeService = null;
+		//mServiceConnection.onServiceDisconnected(strDeviceAddress);
 	}
 	
 	/**
