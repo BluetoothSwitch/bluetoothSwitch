@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical"
@@ -11,30 +10,24 @@
         android:id="@+id/main_topbar"
         style="@style/topbar_bg"
         android:layout_width="match_parent"
-        android:layout_height="46.0dip" >
+        android:layout_height="46.0dip" 
+        android:orientation="horizontal" >
         <TextView
             style="@style/topbar_text"
-            android:text="蓝牙开关插座" />
+            android:text="蓝牙开关设备" />
+        <ImageButton 
+            android:id="@+id/main_search"
+            android:layout_width="30.0dip"
+            android:layout_height="30.0dip"
+            android:background="@drawable/btn_search_end" />
     </RelativeLayout>
-
-       <LinearLayout
-        android:id="@+id/main_ll_scan"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/main_topbar"
-        android:padding="16dp" >
-
-        <Button
-            android:id="@+id/main_scan_dev"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="扫描设备" />
-    </LinearLayout>
-
+     
     <ListView
         android:id="@+id/main_listview"
-        android:layout_below="@+id/main_ll_scan"
+        android:layout_below="@+id/main_topbar"
         android:layout_margin="8dp"
+        android:dividerHeight="1px"
+        android:gravity="center_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
     </ListView>

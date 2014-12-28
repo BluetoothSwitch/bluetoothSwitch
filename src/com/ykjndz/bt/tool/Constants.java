@@ -87,4 +87,8 @@ public class Constants {
 	 * 断开:未连接
 	 */
 	public static String DISCONNECTED = "Disconnected";
+	/**
+	 * 声音标签
+	 */
+	public static String SOUND = "sound";
 }

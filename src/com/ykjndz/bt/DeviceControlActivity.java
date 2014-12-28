@@ -1,6 +1,8 @@
 package com.ykjndz.bt;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.ykjndz.bt.tool.Constants;
 import com.ykjndz.bt.tool.Utils;
@@ -18,13 +20,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -39,22 +43,15 @@ public class DeviceControlActivity extends BaseActivity {
 	private ImageButton ibtControlAlarm;
 	private Button btnReturn;
 	private TextView tvStatus;
-	private TextView switchtxt;
-	private TextView lighttxt;
-	private TextView alarmtxt;
 	private static BluetoothLeService mBluetoothLeService;
 	protected static String EXTRAS_DEVICE_NAME = "DEVICE_NAME";;
 	protected static String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
 	protected static String EXTRAS_DEVICE_RSSI = "RSSI";
+	private MediaPlayer mPlayer;//播放声音
 
 	private Bundle bundle;
 	private String strDeviceName;
 	private String strDeviceAddress;
-	private String strRssi;
-	private String swidthstr = null;
-	private String lightstr = null;
-	private String alarmstr = null;
-
 	private boolean mConnected = false;
 	private static BluetoothGattCharacteristic target_chara=null;
 	private Handler mHandler;
@@ -82,27 +79,19 @@ public class DeviceControlActivity extends BaseActivity {
 		ibtControlAlarm = (ImageButton) findViewById(R.id.ibt_control_alarm);
 		btnReturn = (Button) findViewById(R.id.control_finish);
 		tvStatus = (TextView) findViewById(R.id.control_blueth_status);
-		switchtxt = (TextView) findViewById(R.id.switch_control);
-		lighttxt = (TextView) findViewById(R.id.light_control);
-		alarmtxt = (TextView) findViewById(R.id.alarm_control);
 		tvStatus = (TextView) findViewById(R.id.control_blueth_status);
 		tvStatus = (TextView) findViewById(R.id.control_blueth_status);
 		bundle = getIntent().getExtras();
 		strDeviceName = bundle.getString(EXTRAS_DEVICE_NAME);
 		strDeviceAddress = bundle.getString(EXTRAS_DEVICE_ADDRESS);
-		strRssi = bundle.getString(EXTRAS_DEVICE_RSSI);
 		tvBluetoothName.setText(strDeviceName);
 		Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
 		bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 		
-		swidthstr = switchtxt.getText().toString();
-		lightstr = lighttxt.getText().toString();
-		alarmstr = alarmtxt.getText().toString();
+		initSound();
 	}
 
-	// Code to manage Service lifecycle.
 	private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
 		@Override
 		public void onServiceConnected(ComponentName componentName,
 				IBinder service) {
@@ -111,8 +100,6 @@ public class DeviceControlActivity extends BaseActivity {
 				Log.e(TAG, "Unable to initialize Bluetooth");
 				finish();
 			}
-			// Automatically connects to the device upon successful start-up
-			// initialization.
 			mBluetoothLeService.connect(strDeviceAddress);
 		}
 
@@ -148,23 +135,32 @@ public class DeviceControlActivity extends BaseActivity {
 			 }
 		}
 	};
-	
+	/**
+	 * 
+	 * @Description:接收数据
+	 * @param data
+	 * @author: huangwb 
+	 * @date: 2014年12月28日 下午1:07:47
+	 * @throws:
+	 */
 	private void checkData(String data){
+		Log.d(TAG,"接收到的数据:" + data);
 		//点击返回
 		if(Constants.RES_ALARM_CLOSE.equals(data) || Constants.ALARM_CLOSE.equals(data)){
 			updateImage(ibtControlAlarm,false);
 		}else if(Constants.RES_ALARM_OPEN.equals(data) || Constants.ALARM_OPEN.equals(data)){
 			updateImage(ibtControlAlarm,true);
 		}else if(Constants.RES_LIGHT_CLOSE.equals(data) || Constants.LIGHT_CLOSE.equals(data)){
-			updateImage(ibtControlLight,false);
-		}else if(Constants.RES_LIGHT_OPEN.equals(data) || Constants.LIGHT_OPEN.equals(data)){
-			updateImage(ibtControlLight,true);
-		}else if(Constants.RES_SWITCH_CLOSE.equals(data) || Constants.SWITCH_CLOSE.equals(data)){
 			updateImage(ibtControlLamp,false);
-		}else if(Constants.RES_SWITCH_OPEN.equals(data) || Constants.SWITCH_OPEN.equals(data)){
+		}else if(Constants.RES_LIGHT_OPEN.equals(data) || Constants.LIGHT_OPEN.equals(data)){
 			updateImage(ibtControlLamp,true);
-		}
-		
+		}else if(Constants.RES_SWITCH_CLOSE.equals(data) || Constants.SWITCH_CLOSE.equals(data)){
+			updateImage(ibtControlLight,false);
+		}else if(Constants.RES_SWITCH_OPEN.equals(data) || Constants.SWITCH_OPEN.equals(data)){
+			updateImage(ibtControlLight,true);
+		}else if(Constants.ALARM.equals(data)){
+			mPlayer.start();
+		}	
 	}
 	
 	/**
@@ -268,15 +264,43 @@ public class DeviceControlActivity extends BaseActivity {
 			public void run() {
 				if(isOpen){
 					ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_l));
-					
+					ib.setTag(true);
 				}else{
 					ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_h));
+					ib.setTag(false);
 				}
-				
-				ib.setMaxHeight(120);
-				ib.setMaxWidth(120);
 			}
 		});
+	}
+	
+	/**
+	 * 
+	 * @Description:初始化声音
+	 * @author: huangwb 
+	 * @date: 2014年12月28日 下午2:18:44
+	 * @throws:
+	 */
+	private void initSound(){
+		try {
+			mPlayer = MediaPlayer.create(this, R.raw.alarm);
+			mPlayer.setLooping(true);
+		} catch (Exception e) {
+			Log.e(TAG, e.getMessage());
+		}
+	}
+	
+	/**
+	 * 
+	 * @Description:停止播放声音
+	 * @author: huangwb 
+	 * @date: 2014年12月28日 下午1:32:44
+	 * @throws:
+	 */
+	private void stopSounds(){
+		if(mPlayer != null){
+			mPlayer.stop();
+			mPlayer.release();
+		}
 	}
 
 	/**
@@ -291,54 +315,61 @@ public class DeviceControlActivity extends BaseActivity {
 		ibtControlLight.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				write(Constants.SWITCH_OPEN);
+				if (ibtControlLight.getTag() == null) {
+					ibtControlLight.setTag(false);
+				}
+			
+				boolean flag = (Boolean)ibtControlLight.getTag();
+				if(flag){
+					write(Constants.SWITCH_CLOSE);
+					ibtControlLight.setTag(false);
+				}else{
+					write(Constants.SWITCH_OPEN);
+					ibtControlLight.setTag(true);
+				}
 			}
 		});
 		
-		ibtControlLight.setOnLongClickListener(new OnLongClickListener() {
-			
-			@Override
-			public boolean onLongClick(View v) {
-				write(Constants.SWITCH_CLOSE);
-				return true;
-			}
-		});
-
 		// 控制小夜灯
 		ibtControlLamp.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				write(Constants.LIGHT_OPEN);
+				if (ibtControlLamp.getTag() == null) {
+					ibtControlLamp.setTag(false);
+				}
+			
+				boolean flag = (Boolean)ibtControlLamp.getTag();
+				if(flag){
+					write(Constants.LIGHT_CLOSE);
+					ibtControlLamp.setTag(false);
+				}else{
+					write(Constants.LIGHT_OPEN);
+					ibtControlLamp.setTag(true);
+				}
 			}
 		});
 		
-		ibtControlLamp.setOnLongClickListener(new OnLongClickListener() {
-			
-			@Override
-			public boolean onLongClick(View v) {
-				write(Constants.LIGHT_CLOSE);
-				return true;
-			}
-		});
 		// 控制报警功能
 		ibtControlAlarm.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				write(Constants.ALARM_OPEN);
+				if (ibtControlAlarm.getTag() == null) {
+					ibtControlAlarm.setTag(false);
+				}
+			
+				boolean flag = (Boolean)ibtControlAlarm.getTag();
+				if(flag){
+					write(Constants.ALARM_CLOSE);
+					ibtControlLamp.setTag(false);
+				}else{
+					write(Constants.ALARM_OPEN);
+					ibtControlLamp.setTag(true);
+				}
 			}
 		});
 		
-		ibtControlAlarm.setOnLongClickListener(new OnLongClickListener() {
-			
-			@Override
-			public boolean onLongClick(View v) {
-				write(Constants.ALARM_CLOSE);
-				return true;
-			}
-		});
 
 		// 返回
 		btnReturn.setOnClickListener(new OnClickListener() {
@@ -378,6 +409,7 @@ public class DeviceControlActivity extends BaseActivity {
 		unregisterReceiver(mGattUpdateReceiver);
 		unbindService(mServiceConnection);
 		mBluetoothLeService = null;
+		stopSounds();
 		//mServiceConnection.onServiceDisconnected(strDeviceAddress);
 	}
 	
@@ -391,7 +423,7 @@ public class DeviceControlActivity extends BaseActivity {
 	 */
 	public static void write(String s)
     {
-    	final int charaProp = target_chara.getProperties();				
+    	final int charaProp = target_chara.getProperties();
 		if ((charaProp | BluetoothGattCharacteristic.PROPERTY_WRITE) > 0) {
 			target_chara.setValue(s);
 			mBluetoothLeService.writeCharacteristic(target_chara);

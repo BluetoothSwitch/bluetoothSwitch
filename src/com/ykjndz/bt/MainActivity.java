@@ -15,8 +15,10 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.ykjndz.bt.adapter.DeviceListAdapter;
 /**
  * 主界面
@@ -26,7 +28,7 @@ import com.ykjndz.bt.adapter.DeviceListAdapter;
 *
  */
 public class MainActivity extends BaseActivity {
-    private Button btnScan;
+    private ImageButton btnScan;
     private ListView listView;
     
     BluetoothAdapter mBluetoothAdapter;
@@ -55,7 +57,7 @@ public class MainActivity extends BaseActivity {
     * @return void
      */
 	private void init(){
-		btnScan = (Button) findViewById(R.id.main_scan_dev);
+		btnScan = (ImageButton)findViewById(R.id.main_search);
 		listView = (ListView) findViewById(R.id.main_listview);
 		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
 		    Toast.makeText(this, "不支持BLE", Toast.LENGTH_SHORT).show();
@@ -79,7 +81,7 @@ public class MainActivity extends BaseActivity {
 		deviceListAdapter=new DeviceListAdapter(MainActivity.this,rssis);
 		
 		listView.setAdapter(deviceListAdapter);
-		
+		scanLeDevice(true);
 	}
 	
 	/**
@@ -90,13 +92,13 @@ public class MainActivity extends BaseActivity {
 	 */
 	private void registerListener() {
 		btnScan.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
-				scanLeDevice(true);
+				if(!mScanning){
+					scanLeDevice(true);
+				}
 			}
 		});
-		
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -112,9 +114,7 @@ public class MainActivity extends BaseActivity {
 		            mBluetoothAdapter.stopLeScan(mLeScanCallback);
 		            mScanning = false;
 		        }
-		        
 		        startActivity(intent);
-				
 			}
 		});
 	}
@@ -142,22 +142,23 @@ public class MainActivity extends BaseActivity {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
-    
     }
 	
 	private BluetoothAdapter.LeScanCallback mLeScanCallback =
 	        new BluetoothAdapter.LeScanCallback() {
-	    
-
 		@Override
 		public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
-			// TODO Auto-generated method stub
-				
 			runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                 	deviceListAdapter.addDevice(device,rssi);
                 	deviceListAdapter.notifyDataSetChanged();
+                	
+                	if(mScanning){
+                		btnScan.setImageDrawable(getResources().getDrawable(R.drawable.btn_search_start));
+                	}else{
+                		btnScan.setImageDrawable(getResources().getDrawable(R.drawable.btn_search_end));
+                	}
                 }
             });
 		}
