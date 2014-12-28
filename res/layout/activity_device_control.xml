@@ -51,6 +51,7 @@
                     android:id="@+id/ibt_control_light"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
+                    android:scaleType="fitXY"
                     android:background="@drawable/btn_control_selector" />
 
                 <TextView
@@ -74,6 +75,7 @@
                     android:id="@+id/ibt_control_lamp"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
+                    android:scaleType="fitXY"
                     android:background="@drawable/btn_control_selector"  />
                 <TextView
                     android:id="@+id/light_control"
@@ -90,6 +92,7 @@
                     android:id="@+id/ibt_control_alarm"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
+                    android:scaleType="fitXY"
                     android:layout_marginLeft="30px"
                     android:layout_toRightOf="@+id/ibt_control_lamp"
                     android:background="@drawable/btn_control_selector"  />

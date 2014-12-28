@@ -150,20 +150,19 @@ public class DeviceControlActivity extends BaseActivity {
 	};
 	
 	private void checkData(String data){
-		Log.d(TAG,data + "====");
 		//点击返回
 		if(Constants.RES_ALARM_CLOSE.equals(data) || Constants.ALARM_CLOSE.equals(data)){
-			updateState(alarmtxt,alarmstr + ":" + data + "-->关");
+			updateImage(ibtControlAlarm,false);
 		}else if(Constants.RES_ALARM_OPEN.equals(data) || Constants.ALARM_OPEN.equals(data)){
-			updateState(alarmtxt,alarmstr + ":" + data + "-->开");
+			updateImage(ibtControlAlarm,true);
 		}else if(Constants.RES_LIGHT_CLOSE.equals(data) || Constants.LIGHT_CLOSE.equals(data)){
-			updateState(lighttxt,lightstr + ":" + data + "-->关");
+			updateImage(ibtControlLight,false);
 		}else if(Constants.RES_LIGHT_OPEN.equals(data) || Constants.LIGHT_OPEN.equals(data)){
-			updateState(lighttxt,lightstr + ":" + data + "-->开");
+			updateImage(ibtControlLight,true);
 		}else if(Constants.RES_SWITCH_CLOSE.equals(data) || Constants.SWITCH_CLOSE.equals(data)){
-			updateState(switchtxt,swidthstr + ":" + data + "-->关");
+			updateImage(ibtControlLamp,false);
 		}else if(Constants.RES_SWITCH_OPEN.equals(data) || Constants.SWITCH_OPEN.equals(data)){
-			updateState(switchtxt,swidthstr + ":" + data + "-->开");
+			updateImage(ibtControlLamp,true);
 		}
 		
 	}
@@ -236,12 +235,46 @@ public class DeviceControlActivity extends BaseActivity {
             }
         }//
     }
-
+    /**
+     * 
+     * @Description:改变连接状态
+     * @param view
+     * @param status
+     * @author: huangwb 
+     * @date: 2014年12月28日 上午10:33:32
+     * @throws:
+     */
 	private void updateState(final TextView view,final String status) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				view.setText(status);
+			}
+		});
+	}
+	
+	/**
+	 * 
+	 * @Description:改变按钮的背景图片
+	 * @param ib
+	 * @param isOpen
+	 * @author: huangwb 
+	 * @date: 2014年12月28日 上午10:35:19
+	 * @throws:
+	 */
+	private void updateImage(final ImageButton ib,final boolean isOpen){
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if(isOpen){
+					ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_l));
+					
+				}else{
+					ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_h));
+				}
+				
+				ib.setMaxHeight(120);
+				ib.setMaxWidth(120);
 			}
 		});
 	}
@@ -255,7 +288,7 @@ public class DeviceControlActivity extends BaseActivity {
 	 */
 	private void registerListener() {
 		// 控制开关灯
-		ibtControlLight.setOnClickListener(new OnClickListener() {
+		ibtControlLight.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				write(Constants.SWITCH_OPEN);
