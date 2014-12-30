@@ -67,12 +67,12 @@ public class DeviceListAdapter extends BaseAdapter {
 		TextView deviceAddress = (TextView) view
 				.findViewById(R.id.tv_deviceAddr);
 		TextView deviceName = (TextView) view.findViewById(R.id.tv_deviceName);
-		TextView rssi = (TextView) view.findViewById(R.id.tv_rssi);
+		//TextView rssi = (TextView) view.findViewById(R.id.tv_rssi);
 
 		BluetoothDevice device = mLeDevices.get(i);
 		deviceAddress.setText(device.getAddress());
 		deviceName.setText(device.getName());
-		rssi.setText("" + arrayList.get(i));
+		//rssi.setText("" + arrayList.get(i));
 
 		return view;
 	}

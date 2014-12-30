@@ -110,7 +110,7 @@ public class BluetoothLeService extends Service {
                 Log.i(TAG, "--onServicesDiscovered called--");
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
-                System.out.println("onServicesDiscovered received: " + status);
+                //System.out.println("onServicesDiscovered received: " + status);
             }
         }
 
@@ -301,7 +301,7 @@ public class BluetoothLeService extends Service {
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
-        System.out.println("device.getBondState=="+device.getBondState());
+        //System.out.println("device.getBondState=="+device.getBondState());
         return true;
     }
 
