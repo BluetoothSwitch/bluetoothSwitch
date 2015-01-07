@@ -15,11 +15,6 @@
         <TextView
             style="@style/topbar_text"
             android:text="蓝牙开关设备" />
-        <ImageButton 
-            android:id="@+id/main_search"
-            android:layout_width="30.0dip"
-            android:layout_height="30.0dip"
-            android:background="@drawable/btn_search_end" />
     </RelativeLayout>
      
     <ListView

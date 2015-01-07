@@ -11,11 +11,8 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -28,9 +25,8 @@ import com.ykjndz.bt.adapter.DeviceListAdapter;
 *
  */
 public class MainActivity extends BaseActivity {
-    private ImageButton btnScan;
     private ListView listView;
-    
+	
     BluetoothAdapter mBluetoothAdapter;
     int REQUEST_ENABLE_BT=1;
     
@@ -57,7 +53,6 @@ public class MainActivity extends BaseActivity {
     * @return void
      */
 	private void init(){
-		btnScan = (ImageButton)findViewById(R.id.main_search);
 		listView = (ListView) findViewById(R.id.main_listview);
 		if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
 		    Toast.makeText(this, "不支持BLE", Toast.LENGTH_SHORT).show();
@@ -81,6 +76,7 @@ public class MainActivity extends BaseActivity {
 		deviceListAdapter=new DeviceListAdapter(MainActivity.this,rssis);
 		
 		listView.setAdapter(deviceListAdapter);
+		//开始扫描
 		scanLeDevice(true);
 	}
 	
@@ -91,16 +87,7 @@ public class MainActivity extends BaseActivity {
 	* @return void
 	 */
 	private void registerListener() {
-		btnScan.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(!mScanning){
-					scanLeDevice(true);
-				}
-			}
-		});
 		listView.setOnItemClickListener(new OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position,
 					long id) {
@@ -135,7 +122,6 @@ public class MainActivity extends BaseActivity {
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 }
             }, SCAN_PERIOD);
-
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
@@ -153,15 +139,8 @@ public class MainActivity extends BaseActivity {
                 public void run() {
                 	deviceListAdapter.addDevice(device,rssi);
                 	deviceListAdapter.notifyDataSetChanged();
-                	
-                	if(mScanning){
-                		btnScan.setImageDrawable(getResources().getDrawable(R.drawable.btn_search_start));
-                	}else{
-                		btnScan.setImageDrawable(getResources().getDrawable(R.drawable.btn_search_end));
-                	}
                 }
             });
 		}
 	};
-
 }
