@@ -71,7 +71,7 @@ public class Constants {
 	/**
 	 * 警报
 	 */
-	public static String ALARM = "AT+PI081";
+	public static String ALARM = "AT+PIO81";
 	/**
 	 * 查询状态指令
 	 * B:开关灯

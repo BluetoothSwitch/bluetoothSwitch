@@ -1,14 +1,6 @@
 package com.ykjndz.bt;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import com.ykjndz.bt.tool.Constants;
-import com.ykjndz.bt.tool.Utils;
-import com.ykjndz.bt.BluetoothLeService;
-
-import android.R.integer;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -20,9 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,6 +22,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import com.ykjndz.bt.tool.Constants;
+import com.ykjndz.bt.tool.Utils;
 
 @SuppressLint("ResourceAsColor")
 public class DeviceControlActivity extends BaseActivity {
@@ -210,7 +202,6 @@ public class DeviceControlActivity extends BaseActivity {
         		if (data != null && data.length > 0) {
         			Log.d(TAG,"---->char value:"+new String(data));
         		}
-        		
         		if(gattCharacteristic.getUuid().toString().equals(SampleGattAttributes.HEART_RATE_MEASUREMENT)){
         			target_chara = gattCharacteristic;
         			
