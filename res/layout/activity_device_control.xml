@@ -30,84 +30,19 @@
             android:text="Disconnected" />
     </RelativeLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/main_center"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:layout_below="@id/main_topbar"
-        android:orientation="vertical" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" >
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" >
-
-                <ImageButton
+        android:gravity="center|center_horizontal|center_vertical">
+		
+        <ImageButton
                     android:id="@+id/ibt_control_light"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:scaleType="fitXY"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:background="@drawable/btn_control_selector" />
-
-                <TextView
-                    android:id="@+id/switch_control"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/ibt_control_light"
-                    android:layout_below="@+id/ibt_control_light"
-                    android:gravity="center_horizontal"
-                    android:text="开关灯"
-                    android:textColor="@drawable/color_control"
-                    android:textSize="20sp" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal" >
-
-                <ImageButton
-                    android:id="@+id/ibt_control_lamp"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:scaleType="fitXY"
-                    android:background="@drawable/btn_control_selector"  />
-                <TextView
-                    android:id="@+id/light_control"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/ibt_control_lamp"
-                    android:layout_below="@+id/ibt_control_lamp"
-                    android:gravity="center_horizontal"
-                    android:text="小夜灯"
-                    android:textColor="@drawable/color_control"
-                    android:textSize="20sp" />
-
-                <ImageButton
-                    android:id="@+id/ibt_control_alarm"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
-                    android:scaleType="fitXY"
-                    android:layout_marginLeft="30px"
-                    android:layout_toRightOf="@+id/ibt_control_lamp"
-                    android:background="@drawable/btn_control_selector"  />
-                <TextView
-                    android:id="@+id/alarm_control"
-                    android:layout_width="120dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignLeft="@+id/ibt_control_alarm"
-                    android:layout_below="@+id/ibt_control_alarm"
-                    android:gravity="center_horizontal"
-                    android:text="报警功能"
-                    android:textColor="@drawable/color_control"
-                    android:textSize="20sp" />
-            </RelativeLayout>
-        </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>

@@ -91,4 +91,34 @@ public class Constants {
 	 * 声音标签
 	 */
 	public static String SOUND = "sound";
+	
+	/**
+	 * 短触开关的控制时间
+	 */
+	public static int SWITCHTIME = 1;
+	
+	/**
+	 * 小夜灯的控制时间
+	 */
+	public static int LIGHTIME = 3;
+	
+	/**
+	 * 告警的控制时间
+	 */
+	public static int ALARMTIME = 8;
+	
+	/**
+	 * 开关灯类型
+	 */
+	public static String SWITCHTYPE = "B";
+	
+	/**
+	 * 小夜灯类型
+	 */
+	public static String LIGHTTYPE = "A";
+	
+	/**
+	 * 告警灯类型
+	 */
+	public static String ALARMTYPE = "9";
 }

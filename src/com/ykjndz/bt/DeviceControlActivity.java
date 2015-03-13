@@ -1,6 +1,9 @@
 package com.ykjndz.bt;
 
+import java.util.Date;
 import java.util.List;
+
+import android.R.integer;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -12,16 +15,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.text.Layout;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 import com.ykjndz.bt.tool.Constants;
 import com.ykjndz.bt.tool.Utils;
 
@@ -31,8 +38,7 @@ public class DeviceControlActivity extends BaseActivity {
 	private final static String TAG = DeviceControlActivity.class.getSimpleName();
 	private TextView tvBluetoothName;
 	private ImageButton ibtControlLight;
-	private ImageButton ibtControlLamp;
-	private ImageButton ibtControlAlarm;
+	private View centerLayer;
 	private Button btnReturn;
 	private TextView tvStatus;
 	private static BluetoothLeService mBluetoothLeService;
@@ -67,12 +73,9 @@ public class DeviceControlActivity extends BaseActivity {
 	private void init() {
 		tvBluetoothName = (TextView) findViewById(R.id.control_blueth_name);
 		ibtControlLight = (ImageButton) findViewById(R.id.ibt_control_light);
-		ibtControlLamp = (ImageButton) findViewById(R.id.ibt_control_lamp);
-		ibtControlAlarm = (ImageButton) findViewById(R.id.ibt_control_alarm);
 		btnReturn = (Button) findViewById(R.id.control_finish);
 		tvStatus = (TextView) findViewById(R.id.control_blueth_status);
-		tvStatus = (TextView) findViewById(R.id.control_blueth_status);
-		tvStatus = (TextView) findViewById(R.id.control_blueth_status);
+		centerLayer = (View)findViewById(R.id.main_center);
 		bundle = getIntent().getExtras();
 		strDeviceName = bundle.getString(EXTRAS_DEVICE_NAME);
 		strDeviceAddress = bundle.getString(EXTRAS_DEVICE_ADDRESS);
@@ -139,17 +142,17 @@ public class DeviceControlActivity extends BaseActivity {
 		Log.d(TAG,"接收到的数据:" + data);
 		//点击返回
 		if(Constants.RES_ALARM_CLOSE.equals(data) || Constants.ALARM_CLOSE.equals(data)){
-			updateImage(ibtControlAlarm,false);
+			//updateImage(ibtControlAlarm,false,Constants.ALARMTYPE);
 		}else if(Constants.RES_ALARM_OPEN.equals(data) || Constants.ALARM_OPEN.equals(data)){
-			updateImage(ibtControlAlarm,true);
+			//updateImage(ibtControlAlarm,true,Constants.ALARMTYPE);
 		}else if(Constants.RES_LIGHT_CLOSE.equals(data) || Constants.LIGHT_CLOSE.equals(data)){
-			updateImage(ibtControlLamp,false);
+			updateImage(centerLayer,false,Constants.LIGHTTYPE);
 		}else if(Constants.RES_LIGHT_OPEN.equals(data) || Constants.LIGHT_OPEN.equals(data)){
-			updateImage(ibtControlLamp,true);
+			updateImage(centerLayer,true,Constants.LIGHTTYPE);
 		}else if(Constants.RES_SWITCH_CLOSE.equals(data) || Constants.SWITCH_CLOSE.equals(data)){
-			updateImage(ibtControlLight,false);
+			updateImage(ibtControlLight,false,Constants.SWITCHTYPE);
 		}else if(Constants.RES_SWITCH_OPEN.equals(data) || Constants.SWITCH_OPEN.equals(data)){
-			updateImage(ibtControlLight,true);
+			updateImage(ibtControlLight,true,Constants.SWITCHTYPE);
 		}else if(Constants.ALARM.equals(data)){
 			mPlayer.start();
 		}	
@@ -249,16 +252,34 @@ public class DeviceControlActivity extends BaseActivity {
 	 * @date: 2014年12月28日 上午10:35:19
 	 * @throws:
 	 */
-	private void updateImage(final ImageButton ib,final boolean isOpen){
+	private void updateImage(final Object ob,final boolean isOpen,final String type){
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if(isOpen){
-					ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_l));
-					ib.setTag(true);
+					if(Constants.SWITCHTYPE.equals(type)){
+						ImageButton ib = (ImageButton)ob;
+						ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_l));
+						ib.setTag(true);
+					}else if(Constants.LIGHTTYPE.equals(type)){
+						View view = (View)ob;
+						view.setBackgroundColor(Color.GREEN);
+						view.setTag(true);
+					}else if(Constants.ALARMTYPE.equals(type)){
+						
+					}
 				}else{
-					ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_h));
-					ib.setTag(false);
+					if(Constants.SWITCHTYPE.equals(type)){
+						ImageButton ib = (ImageButton)ob;
+						ib.setImageDrawable(getResources().getDrawable(R.drawable.btn_first_h));
+						ib.setTag(false);
+					}else if(Constants.LIGHTTYPE.equals(type)){
+						View view = (View)ob;
+						view.setBackgroundColor(Color.TRANSPARENT);
+						view.setTag(false);
+					}else if(Constants.ALARMTYPE.equals(type)){
+						
+					}
 				}
 			}
 		});
@@ -302,64 +323,138 @@ public class DeviceControlActivity extends BaseActivity {
 	 * @return void
 	 */
 	private void registerListener() {
+		ibtControlLight.setOnTouchListener(new View.OnTouchListener() {
+			private long startTime = 0;
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				switch (event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					startTime = (new Date()).getTime();
+					break;
+				case MotionEvent.ACTION_UP:
+					long endTime = (new Date()).getTime();
+					long diffTime = endTime - startTime;
+					long second = diffTime / 1000;
+					Log.d(TAG, "开始时间:" + startTime + ",结束时间:" + endTime + ",时间差:" + diffTime + ",秒数:" + second);
+					if(second >=Constants.SWITCHTIME && second < (Constants.SWITCHTIME + 1)){
+						//控制开关灯
+						if (ibtControlLight.getTag() == null) {
+							ibtControlLight.setTag(false);
+						}
+					
+						boolean flag = (Boolean)ibtControlLight.getTag();
+						if(flag){
+							write(Constants.SWITCH_CLOSE);
+							ibtControlLight.setTag(false);
+						}else{
+							write(Constants.SWITCH_OPEN);
+							ibtControlLight.setTag(true);
+						}
+					}else if(second >=Constants.LIGHTIME && second < (Constants.LIGHTIME + 1)){
+						if(centerLayer.getTag() == null){
+							centerLayer.setTag(false);
+						}
+						
+						boolean flag = (Boolean)centerLayer.getTag();
+						
+						if(flag){
+							write(Constants.LIGHT_CLOSE);
+							centerLayer.setTag(false);
+						}else{
+							write(Constants.LIGHT_OPEN);
+							centerLayer.setTag(true);
+						}
+//						if (ibtControlLamp.getTag() == null) {
+//							ibtControlLamp.setTag(false);
+//						}
+//					
+//						boolean flag = (Boolean)ibtControlLamp.getTag();
+//						if(flag){
+//							write(Constants.LIGHT_CLOSE);
+//							ibtControlLamp.setTag(false);
+//						}else{
+//							write(Constants.LIGHT_OPEN);
+//							ibtControlLamp.setTag(true);
+//						}
+					}else if(second >=Constants.ALARMTIME && second < (Constants.ALARMTIME + 1)){
+//						if (ibtControlAlarm.getTag() == null) {
+//							ibtControlAlarm.setTag(false);
+//						}
+//					
+//						boolean flag = (Boolean)ibtControlAlarm.getTag();
+//						if(flag){
+//							write(Constants.ALARM_CLOSE);
+//							ibtControlLamp.setTag(false);
+//						}else{
+//							write(Constants.ALARM_OPEN);
+//							ibtControlLamp.setTag(true);
+//						}
+					}
+					break;
+				default:
+					break;
+				}
+				return false;
+			}
+		});
 		// 控制开关灯
-		ibtControlLight.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if (ibtControlLight.getTag() == null) {
-					ibtControlLight.setTag(false);
-				}
-			
-				boolean flag = (Boolean)ibtControlLight.getTag();
-				if(flag){
-					write(Constants.SWITCH_CLOSE);
-					ibtControlLight.setTag(false);
-				}else{
-					write(Constants.SWITCH_OPEN);
-					ibtControlLight.setTag(true);
-				}
-			}
-		});
-		
+//		ibtControlLight.setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				if (ibtControlLight.getTag() == null) {
+//					ibtControlLight.setTag(false);
+//				}
+//			
+//				boolean flag = (Boolean)ibtControlLight.getTag();
+//				if(flag){
+//					write(Constants.SWITCH_CLOSE);
+//					ibtControlLight.setTag(false);
+//				}else{
+//					write(Constants.SWITCH_OPEN);
+//					ibtControlLight.setTag(true);
+//				}
+//			}
+//		});
+//		
 		// 控制小夜灯
-		ibtControlLamp.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (ibtControlLamp.getTag() == null) {
-					ibtControlLamp.setTag(false);
-				}
-			
-				boolean flag = (Boolean)ibtControlLamp.getTag();
-				if(flag){
-					write(Constants.LIGHT_CLOSE);
-					ibtControlLamp.setTag(false);
-				}else{
-					write(Constants.LIGHT_OPEN);
-					ibtControlLamp.setTag(true);
-				}
-			}
-		});
-		
+//		ibtControlLamp.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				if (ibtControlLamp.getTag() == null) {
+//					ibtControlLamp.setTag(false);
+//				}
+//			
+//				boolean flag = (Boolean)ibtControlLamp.getTag();
+//				if(flag){
+//					write(Constants.LIGHT_CLOSE);
+//					ibtControlLamp.setTag(false);
+//				}else{
+//					write(Constants.LIGHT_OPEN);
+//					ibtControlLamp.setTag(true);
+//				}
+//			}
+//		});
+//		
 		// 控制报警功能
-		ibtControlAlarm.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				if (ibtControlAlarm.getTag() == null) {
-					ibtControlAlarm.setTag(false);
-				}
-			
-				boolean flag = (Boolean)ibtControlAlarm.getTag();
-				if(flag){
-					write(Constants.ALARM_CLOSE);
-					ibtControlLamp.setTag(false);
-				}else{
-					write(Constants.ALARM_OPEN);
-					ibtControlLamp.setTag(true);
-				}
-			}
-		});
+//		ibtControlAlarm.setOnClickListener(new OnClickListener() {
+//
+//			@Override
+//			public void onClick(View v) {
+//				if (ibtControlAlarm.getTag() == null) {
+//					ibtControlAlarm.setTag(false);
+//				}
+//			
+//				boolean flag = (Boolean)ibtControlAlarm.getTag();
+//				if(flag){
+//					write(Constants.ALARM_CLOSE);
+//					ibtControlLamp.setTag(false);
+//				}else{
+//					write(Constants.ALARM_OPEN);
+//					ibtControlLamp.setTag(true);
+//				}
+//			}
+//		});
 		
 
 		// 返回
